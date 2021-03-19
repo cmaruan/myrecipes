@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load recipes.tags %}
+
+{% block content %}
+{% include 'header.html' with module=module %}
+
+{% with active=module.submodules|keyvalue:module.active  %}
+
+<div class="mt-16">
+    <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-10 col-start-2">
+            {% include 'searchbar.html' with value=search %}
+            {% block table %}
+            <div id="user-table" class="mt-12">
+                {% include active.template with items=items %}
+            </div>
+            {% endblock table %}
+        </div>
+    </div>
+</div>
+
+{% endwith %}
+
+{% endblock content %}

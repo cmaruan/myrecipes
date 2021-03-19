@@ -1,0 +1,32 @@
+<div id="ingredients-table" class="mt-12">
+    {% for ingredient in items %}
+
+    <div class="w-full hover:bg-gray-100">
+        <div class="grid grid-cols-4 px-4 py-0.5 border-t h-14 {% if forloop.last %} border-b {% endif %} ">
+            <span class="flex items-center justify-start">
+                <span class='text-black font-medium'>{{ingredient.name}}</span>
+            </span>
+            <span class="flex items-center justify-start">
+                <span class='text-black font-medium'>Article Number: &nbsp; </span>
+                <span class='text-gray-600'>{{ingredient.article_number}}</span>
+            </span>
+            <span class="flex items-center justify-start">
+                <span class='text-black font-medium'>Cost: &nbsp;</span>
+                <span class='text-gray-600'> € {{ingredient.cost}}</span>
+            </span>
+             <span class='grid grid-cols-2'>
+                <span class="flex items-center justify-center">
+                   <span class='text-black font-medium'>Amount: &nbsp; </span>
+                <span class='text-gray-600'>{{ingredient.amount}} {{ingredient.unit.short_name}}</span>
+                </span>
+                <span class="flex items-center justify-end">
+                    <a class="py-2 px-3 " href="{% url 'ingredient-update' ingredient.pk %}">
+                        {% include 'pencil.html' %}
+                    </a>
+                </span>
+            </span>
+        </div>
+    </div>
+
+    {% endfor %}
+</div>

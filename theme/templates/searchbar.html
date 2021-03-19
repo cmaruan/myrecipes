@@ -1,0 +1,17 @@
+<form action="" method="GET">
+<div class="relative w-full">
+    <span class="absolute inset-y-0 left-0 flex items-center text-gray-400 pl-4 gray-100">
+          <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" class="w-6 h-6"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+    </span>
+    {% include 'textinput.html'  with name='search' value=value placeholder='Type your search'%}
+    {% comment %} <input
+        type="text"
+        placeholder="Insira sua busca"
+        name="search"
+        class="input
+            p-auto pl-14
+            placeholder-gray-400
+            border rounded-lg border-black
+            w-full h-12"> {% endcomment %}
+</div>
+</form>

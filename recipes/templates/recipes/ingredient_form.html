@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load recipes.tags %}
+{% load tailwind_filters %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+{% include 'header.html' with module=module %}
+
+    <div class="mt-16">
+        <div class="grid grid-cols-12 gap-4">
+            <div class="col-span-6 col-start-4">
+               
+            {% crispy form %} 
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}

@@ -1,0 +1,289 @@
+{% extends 'base.html' %}
+{% load recipes.tags %}
+{% load tailwind_filters %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+{% include 'header.html' with module=module %}
+
+<div class="mt-16">
+    <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-6 col-start-4">
+            <div class="grid grid-cols-7 gap-4">
+                <div class="mb-0 col-span-3">
+                    <div id="div_id_name" class="mb-3">
+                        <label for="id_name" class="block text-gray-700 text-sm font-bold mb-2">
+                            Name for the recipe
+                        </label>
+                        <input type="text" name="name" value="{{form.name.data|default:""}}"
+                            class="textinput appearance-none text-gray-700 block focus:outline-none rounded-lg w-full border px-4 py-2 leading-normal bg-white
+                            {% if form.name.errors %} border-red-500 {% else %}  border-gray-300 {% endif %}" 
+                            required="" id="id_name">
+                            {% for error in form.name.errors %}
+
+                            <p class="text-red-500 text-xs italic"><strong>{{error}}</strong></p>
+                            {% endfor %} 
+                    </div>
+                </div>
+                {% comment %} <div class="mb-0 col-span-3">
+                    <div id="div_serving" class="mb-3">
+                        <label for="serving" class="block text-gray-700 text-sm font-bold mb-2">
+                            How many servings?
+                        </label>
+                        <input type="text" name="serving"
+                            class="textinput appearance-none text-gray-700 block focus:outline-none rounded-lg w-full border px-4 py-2 leading-normal bg-white border-gray-300"
+                            required="" id="id_serving">
+                    </div>
+                </div> {% endcomment %}
+            </div>
+
+            <form id="id_form_append_to_table">
+
+                <div class="grid grid-cols-7 gap-4">
+                    <div class="mb-0 col-span-3">
+                        <div id="div_id_ingredient" class="mb-3">
+                            <label for="id_ingredient" class="block text-gray-700 text-sm font-bold mb-2">
+                                Ingredient
+                            </label>
+
+
+
+                            <div class="mb-3">
+                                <div class="relative">
+                                    <select
+                                        required=""
+                                        class="bg-white focus:outline-none border border-gray-300 rounded-lg py-2 px-4 block w-full appearance-none leading-normal text-gray-700"
+                                        name="selected_ingredient" id="id_selected_ingredient">
+                                        <option selected value="">Pick an ingredient...</option>
+                                        {% for ingredient in ingredients %}
+                                        {% if not ingredient.disabled %}
+                                        <option value="{{ingredient.pk}}">{{ingredient.name}}</option>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                    <div
+                                        class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 20 20">
+                                            <path
+                                                d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z">
+                                            </path>
+                                        </svg> </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-0 col-span-2">
+                        <div id="div_id_amount" class="mb-3">
+                            <label for="id_amount" class="block text-gray-700 text-sm font-bold mb-2">
+                                Amount
+                            </label>
+                            <input type="text" name="amount"
+                                class="textinput appearance-none text-gray-700 block focus:outline-none rounded-lg w-full border px-4 py-2 leading-normal bg-white border-gray-300"
+                                required="" id="id_amount">
+                        </div>
+                    </div>
+                    <div class="mb-0 col-span-2">
+                        <div id="div_id_unit" class="mb-3">
+                            <label for="id_unit" class="block text-gray-700 text-sm font-bold mb-2">
+                                Unit
+                            </label>
+                            <div class="mb-3">
+                                <div class="relative">
+                                    <select
+                                        required=""
+                                        class="bg-white focus:outline-none border border-gray-300 rounded-lg py-2 px-4 block w-full appearance-none leading-normal text-gray-700"
+                                        name="unit" id="id_unit">
+                                        <option selected value="">Pick an unit...</option>
+                                        {% for unit in units %}
+                                        <option value="{{unit.short_name}}">{{unit.name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <div
+                                        class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 20 20">
+                                            <path
+                                                d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z">
+                                            </path>
+                                        </svg> </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid">
+                    <div class="flex justify-end items-center">
+                        <button type="submit" class="bg-gray-300 px-6 py-2 focus:outline-none text-black">Add</button>
+                    </div>
+                </div>
+            </form>
+   
+            
+
+            <div id="id_ingredients_table" class="mt-5 w-full ">
+                <div class=" px-4 py-0.5 border-b h-14 grid gap-4 grid-cols-5 items-end justify-center">
+                    <div class='flex justify-center items-center text-black font-medium'>Ingredient</div>
+                    <div class='flex justify-center items-center text-black font-medium'>Article Number</div>
+                    <div class='flex justify-center items-center text-black font-medium'>Cost</div>
+                    <div class='flex justify-center items-center text-black font-medium'>Amount</div>
+                    <div class="flex justify-center items-center text-black font-medium">Action</div>
+                </div>
+            </div>
+            
+            {% if form.ingredients.errors %}
+            <div class="flex justify-end items-center">
+            {% for error in form.ingredients.errors %}
+                <p class="text-red-500 text-xs italic"><strong>{{error}}</strong></p>
+            {% endfor %} 
+            </div>
+            {% endif %}
+
+            <div class="mt-16 grid grid-cols-2 gap-4 justify-between items-center">
+                <p class='text-2xl'>Total Cost: <span  class="font-semibold">€&nbsp;<span id="id_total_cost"> 0.00</span> </p></span>
+                <span class="flex justify-end">
+                    <form onsubmit="sendData()" action="" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="name" id="_id_name">
+                        <input type="hidden" name="ingredients" id="_id_ingredients">
+                        <button type="submit" id="id_submit_data" class="bg-gray-300 px-6 py-2 focus:outline-none text-black">
+                            Save
+                        </button>
+                    </form>
+                </span>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+
+
+
+{% endblock content %}
+
+
+{% block script %}
+<script>
+    const ingredientsArray = {
+     {% for ingredient in ingredients %}
+        "{{ingredient.pk}}": {
+            id: "{{ingredient.pk}}",
+            name: "{{ingredient.name}}",
+            articleNumber: "{{ingredient.article_number}}",
+            cost: {{ingredient.cost}},
+            unit: "{{ingredient.unit.short_name}}",
+            amount: {{ingredient.amount}},
+        },
+    {% endfor %}
+    };
+    const unitsMap = {
+    {% for unit in units %}
+        "{{unit.short_name}}": {
+            name: "{{unit.name}}",
+            pk: "{{unit.pk}}",
+            multiplier: {{unit.multiplier}},
+        },
+    {% endfor %}
+    }
+
+    let globalCounter = 0;
+    let totalCost = 0;
+    
+    {% if form.ingredients.data %}
+    let ingredientsSelected = JSON.parse('{{form.ingredients.data|safe}}');
+    {% else %}
+    let ingredientsSelected = {};
+    {% endif %}
+
+    function appendRow(ingredient, articleNumber, cost, amount, unit, key) {
+        let node = document.createElement('div');
+        node.setAttribute('class', 'hover:bg-gray-100 px-4 py-0.5 border-b h-10 gap-4 justify-center grid grid-cols-5 items-center')
+        node.setAttribute('key', key);
+        node.innerHTML = `
+            <div class='flex justify-center items-center text-black'>${ingredient}</div>
+            <div class='flex justify-center items-center text-black'>${articleNumber}</div>
+            <div class='flex justify-center items-center text-black'>${cost.toFixed(2)}</div>
+            <div class='flex justify-center items-center text-black'>${amount} ${unit}</div>
+            <div class='flex justify-center items-center text-black'>
+            <button onclick="dropRow('${key}')"  class="flex justify-center items-center px-2 py-2 w-20 h-8 bg-red-500 text-sm text-red-50">Remove</button></div>
+            `;
+        document.getElementById("id_ingredients_table").appendChild(node);
+    }
+
+    function dropRow(key) {
+        Array.from(document.getElementById("id_ingredients_table").children).forEach(el => {
+            if (el.getAttribute('key') === key) {
+                const itemCost = ingredientsSelected[key].itemCost;
+                updateTotalCost(-itemCost);
+                el.parentElement.removeChild(el);
+                delete ingredientsSelected[key];
+            }
+        });
+        console.log(ingredientsSelected);
+    }
+
+    function sendData() {
+        document.getElementById("_id_name").value = document.getElementById("id_name").value;
+        document.getElementById("_id_ingredients").value = JSON.stringify(Object.values(ingredientsSelected));
+
+        console.log(document.getElementById("_id_name").value);
+        console.log(document.getElementById("_id_ingredients").value);
+        return true;
+    }
+
+    function updateTotalCost(amount) {
+        let oldValue = parseFloat(document.getElementById("id_total_cost").innerHTML);
+        let newValue = Math.round(100 * (oldValue + amount)) / 100;
+        document.getElementById("id_total_cost").innerHTML = newValue.toFixed(2);
+    }
+
+    document.getElementById("id_form_append_to_table").addEventListener("submit", function(event) {
+        event.preventDefault();
+        console.log('form submit');
+        const id = parseInt(document.getElementById("id_selected_ingredient").value);
+        const selectedAmount = parseFloat(document.getElementById("id_amount").value);
+        const selectedUnit = document.getElementById("id_unit").value;
+        console.log(ingredientsArray[id]);
+        const {
+            name,
+            articleNumber,
+            cost,
+            amount,
+            unit
+        } = ingredientsArray[id];
+
+        let unitCost = cost / (unitsMap[unit].multiplier * amount);
+        let itemCost = Math.round(unitCost * selectedAmount * unitsMap[selectedUnit].multiplier * 100) / 100;
+        let key = globalCounter++;
+
+        appendRow(name, articleNumber, itemCost, selectedAmount, selectedUnit, key);
+        ingredientsSelected[key] = { id, itemCost, selectedUnit, selectedAmount, unit_id: unitsMap[selectedUnit].pk };
+        updateTotalCost(itemCost);
+        
+        console.log(ingredientsSelected);
+    });
+
+    document.addEventListener("DOMContentLoaded", function() {
+        Object.entries(ingredientsSelected).forEach(([key, item]) => {
+            console.log(item)
+            appendRow(
+                ingredientsArray[item.id].name,
+                ingredientsArray[item.id].articleNumber,
+                item.itemCost,
+                item.selectedAmount,
+                item.selectedUnit,
+                globalCounter++);
+            updateTotalCost(item.itemCost);
+        });
+
+    });
+
+    
+
+</script>
+{% endblock script %}
+<div class="grid grid-cols-3 px-4 py-0.5 border-t h-14 {% if forloop.last %} border-b {% endif %} ">
+
+</div>
