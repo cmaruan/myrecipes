@@ -10,7 +10,7 @@ There are two options to setup the app:
     curl -s https://raw.githubusercontent.com/cmaruan/myrecipes/main/install.sh | bash -s
     ``` 
 
-    This script will clone the repository into the current directory, create a virtual environment, install all dependencies and apply all migrations to the database. Currently, SQLite is being used.
+    This script will clone the repository into the current directory, create a virtual environment, install all dependencies and apply all migrations to the database. Currently, SQLite is being used. The script assumes it will be run on a Linux environment.
 
     The script also starts the development server provided by django.
 
@@ -71,4 +71,4 @@ There are two options to setup the app:
 
 ## Security
 
-Because Django uses a SECRET_KEY for cryptographic signing. First, it tries to find an evironment variable named 'DJANGO_SECRET' and use it as the secret key. If it fails, a new one will be generated. However, the app will not remember the previously generated secret key. So it's best if you create one and save it as an environment variable for your system.
+Please note that Django uses a variable called SECRET_KEY for cryptographic signing. MyRecipe does not provide this value by default. The app tries to find an evironment variable named 'DJANGO_SECRET' to use it as the secret key. If it fails, a new one will be generated. However, the app will not remember the previously generated secret key. So it's best if you create one and save it as an environment variable for your system.
