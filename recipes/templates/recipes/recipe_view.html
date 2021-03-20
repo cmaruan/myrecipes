@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load recipes.tags %}
+{% load tailwind_filters %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+{% include 'header.html' with module=module %}
+
+<div class="mt-16 w-full">
+  <div class="flex justify-center text-4xl items-center relative">
+    <p>{{recipe.name}}</p>
+  </div>
+  <div class="flex justify-center text-lg items-center relative">
+    <a href="{% url 'recipe-update' recipe.pk %}" class="italic" >Edit this recipe here</a>
+  </div>
+  <div class="mt-10 grid grid-cols-2 gap-24 w-full">
+    <div class="">
+      <div class="grid grid-cols-5 gap-4">
+        <div class="col-span-3 col-end-6">
+          <div class="flex justify-start items-center h-16">
+            <p class="text-2xl">List of Ingredient</p>
+          </div>
+          {% for ingredient in ingredients %}
+          <div class="flex flex-row justify-between mb-2 items-center">
+            <p>
+              {{ingredient.amount}} {{ingredient.display_unit.short_name}} of
+              {{ingredient.ingredient.name}}
+            </p>
+            <p>€ {{ingredient.cost|floatformat:2 }}</p>
+          </div>
+          {% endfor %}
+          <div class="flex justify-end items-center">
+            <p class="text-xl">Total Cost: € {{recipe.cost|floatformat:2 }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="">
+         <div class="grid grid-cols-5 gap-4">
+        <div class="col-span-3">
+          <div class="flex justify-start items-center h-16">
+            <p class="text-2xl">Directions</p>
+          </div>
+          <div class="">
+            {{recipe.directions|linebreaks}}
+          </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock content %}

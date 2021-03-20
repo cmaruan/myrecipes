@@ -139,20 +139,24 @@
             </div>
             {% endif %}
 
-            <div class="mt-16 grid grid-cols-2 gap-4 justify-between items-center">
-                <p class='text-2xl'>Total Cost: <span  class="font-semibold">€&nbsp;<span id="id_total_cost"> 0.00</span> </p></span>
-                <span class="flex justify-end">
-                    <form onsubmit="sendData()" action="" method="POST">
-                        {% csrf_token %}
-                        <input type="hidden" name="name" id="_id_name">
-                        <input type="hidden" name="ingredients" id="_id_ingredients">
-                        <button type="submit" id="id_submit_data" class="bg-gray-300 px-6 py-2 focus:outline-none text-black">
-                            Save
-                        </button>
-                    </form>
-                </span>
-            </div>
-
+            <form class=" mt-16" onsubmit="sendData()" action="" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="name" id="_id_name">
+                <input type="hidden" name="ingredients" id="_id_ingredients">
+                <span class="text-xl ml-5">Directions for the recipe</span>
+                
+                <textarea class="mt-1 text-gray-700 block focus:outline-none rounded-lg w-full border px-4 py-2 leading-normal bg-white border-gray-300 " name="directions" cols="124" rows="20">{{form.directions.data|default:""}}</textarea>
+                
+                <div class="flex justify-between mt-5 items-center">
+                    <div class="grid grid-cols-2 gap-4 justify-between items-center">
+                        <p class='text-2xl'>Total Cost: <span  class="font-semibold">€&nbsp;<span id="id_total_cost"> 0.00</span> </p></span>
+                    </div>
+                    <button type="submit" id="id_submit_data" class="bg-gray-300 px-6 py-2 focus:outline-none text-black">
+                        Save
+                    </button>
+                </div>
+            </form>
+            <div class="h-5"></div>
 
         </div>
     </div>

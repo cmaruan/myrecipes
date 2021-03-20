@@ -16,6 +16,9 @@
                    <span class='text-gray-600'>{{recipe.ingredients.count}}</span>
                 </span>
                 <span class="flex items-center justify-end">
+                    <a class="py-2 px-3 " href="{% url 'recipe-view' recipe.pk %}">
+                        {% include 'eye.html' %}
+                    </a>
                     <a class="py-2 px-3 " href="{% url 'recipe-update' recipe.pk %}">
                         {% include 'pencil.html' %}
                     </a>

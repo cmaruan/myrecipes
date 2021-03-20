@@ -82,6 +82,7 @@ class UpdateIngredientForm(CreateIngredientForm):
 
 class RecipeForm(forms.Form):
     name = forms.CharField(required=True)
+    directions = forms.CharField(required=True)
     ingredients = forms.CharField(required=True)
 
     def __init__(self, *args, **kwargs):
@@ -94,12 +95,18 @@ class RecipeForm(forms.Form):
 
         name = data.get('name', None)
         ingredients = data.get('ingredients', None)
+        directions = data.get('directions', None)
 
         if name:
             values.update(name=name)
         elif self.pk:
             recipe = Recipe.objects.get(pk=self.pk)
             values.update(name=recipe.name)
+
+        if directions:
+            values.update(directions=directions)
+        elif self.pk:
+            values.update(directions=recipe.directions)
         
         if ingredients:
             values.update(ingredients=ingredients)
@@ -148,19 +155,20 @@ class RecipeForm(forms.Form):
 
         name = cleaned_data.get('name')
         ingredients = cleaned_data.get('ingredients')
+        directions = cleaned_data.get('directions')
         pk = getattr(self, 'pk', None)
 
-        if name and ingredients:
+        if name and ingredients and directions:
             if pk:
                 recipe = Recipe.objects.get(pk=pk)
                 recipe.name = name
+                recipe.directions = directions
                 recipe.save()
 
                 RecipeIngredient.objects.filter(recipe=recipe).delete()
                 recipe.ingredients.clear()
-
             else:
-                recipe = Recipe.objects.create(name=name)
+                recipe = Recipe.objects.create(name=name, directions=directions)
                 
             for ingredient in ingredients:
                 RecipeIngredient.objects.create(

@@ -38,6 +38,7 @@ class Ingredient(models.Model):
 
 class Recipe(models.Model):
     name = models.CharField(max_length=256)
+    directions = models.TextField()
     ingredients = models.ManyToManyField(
         Ingredient,
         through='RecipeIngredient',
@@ -71,6 +72,8 @@ class RecipeIngredient(models.Model):
 
     objects = RecipeIngredientManager()
 
+    def cost(self):
+        return self.unit_cost * self.amount * self.display_unit.multiplier
 
     def __str__(self):
         return f'{self.recipe}: {self.ingredient} {self.unit_cost * self.amount * self.display_unit.multiplier}'

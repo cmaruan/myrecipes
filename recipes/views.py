@@ -4,7 +4,7 @@ from django.shortcuts import redirect, reverse, get_object_or_404
 from django.db.models import F, Q
 import json
 
-from .models import Ingredient, Recipe, Unit
+from .models import Ingredient, Recipe, Unit, RecipeIngredient
 from .forms import CreateIngredientForm, UpdateIngredientForm, RecipeForm
 from . import utils
 
@@ -123,6 +123,21 @@ class RecipeUpdateView(RecipeView):
 
 class RecipeCreateView(RecipeView):
     pass
+
+class RecipeDetailsView(generic.DetailView):
+    model = Recipe
+    context_object_name = 'recipe'
+    template_name = 'recipes/recipe_view.html'
+    
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        recipe = self.get_object()
+        context["module"] = utils.MODULES_INFO
+        context['module']['active'] = 'recipes'
+        context['ingredients'] = RecipeIngredient.objects.filter(recipe=recipe)
+        return context
+
     
 
 
@@ -145,12 +160,15 @@ class MyRecipesView(generic.TemplateView):
         return self.render_to_response(context)
 
 class IngredientCreateView(generic.CreateView):
-    model = Ingredient
+    # model = Ingredient
     form_class = CreateIngredientForm
     template_name = 'recipes/ingredient_form.html'
 
     def get_success_url(self):
         return reverse('homepage')
+    
+    def get_queryset(self):
+        return Ingredient.objects.all()
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
