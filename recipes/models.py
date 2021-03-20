@@ -15,6 +15,9 @@ class Unit(models.Model):
     def __str__(self):
         return self.name
 
+class IngredientManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().select_related('unit')
 
 class Ingredient(models.Model):
     name = models.CharField(max_length=50)
@@ -25,18 +28,20 @@ class Ingredient(models.Model):
     unit = models.ForeignKey(Unit, on_delete=models.CASCADE)
     parent = models.ForeignKey("Ingredient", on_delete=models.CASCADE, null=True, blank=True)
 
+    objects = IngredientManager()
+
     def get_absolute_url(self):
         return reverse('ingredient-update', args=[self.pk])
 
     def __str__(self):
         return self.name
 
-
 class Recipe(models.Model):
     name = models.CharField(max_length=256)
     ingredients = models.ManyToManyField(
         Ingredient,
         through='RecipeIngredient',
+        related_name='ingredients',
         through_fields=('recipe', 'ingredient'),
     )
 
@@ -52,6 +57,9 @@ class Recipe(models.Model):
         ))
         return recipe_cost['cost']
 
+class RecipeIngredientManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().select_related('display_unit', 'recipe', 'ingredient')
     
 
 class RecipeIngredient(models.Model):
@@ -60,6 +68,9 @@ class RecipeIngredient(models.Model):
     amount = models.FloatField()
     display_unit = models.ForeignKey(Unit, on_delete=models.CASCADE)
     unit_cost = models.FloatField()
+
+    objects = RecipeIngredientManager()
+
 
     def __str__(self):
         return f'{self.recipe}: {self.ingredient} {self.unit_cost * self.amount * self.display_unit.multiplier}'
