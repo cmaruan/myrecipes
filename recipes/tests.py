@@ -127,3 +127,14 @@ class RecipeTestCase(BaseTestCase):
         )
         self.assertEqual(len(ingredients), 1)
         self.assertEqual(len(ingredients_of_recipe), 1)
+
+    def test_form_rejects_invalid_unit_conversion(self):
+        data = {
+            'name': 'weird cookie',
+            'ingredients': json.dumps([
+                {'id': '1', 'selectedAmount': 2, 'unit_id': 3},
+            ])
+        }
+        response = self.client.post(reverse('recipe-create'), data)
+        content = response.content
+        self.assertIn('You cannot convert between different types of unit', content.decode())

@@ -22,14 +22,14 @@ class CreateIngredientForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Row(
-                Column('name', css_class='mb-0'),
-                Column('article_number', css_class='mb-0'),
+                Column('name', css_class=''),
+                Column('article_number', css_class=''),
                 css_class='grid grid-cols-2 gap-4'
             ),
             Row(
-                Column('cost', css_class='mb-0'),
-                Column('amount', css_class='mb-0'),
-                Column('unit', css_class='mb-0'),
+                Column('cost', css_class=''),
+                Column('amount', css_class=''),
+                Column('unit', css_class=''),
                 css_class='grid grid-cols-3 gap-4'
             ),
             Row(
@@ -123,13 +123,24 @@ class RecipeForm(forms.Form):
         if len(ingredients) == 0:
             raise forms.ValidationError('A recipe must have at least one ingredient')
 
-        # { id, selectedIndex, itemCost, selectedUnit, selectedAmount, unit_id: unitsMap[selectedUnit].pk };
-        invalid_ingredients = []
         for ingredient in ingredients:
             if ingredient['selectedAmount'] == 0:
                 raise forms.ValidationError('All ingredients must have an amount greater than zero')
-            if Ingredient.objects.filter(pk=ingredient['id']).count() == 0:
+
+            try:
+                db_ingredient = Ingredient.objects.get(pk=ingredient['id'])
+            except:
                 raise forms.ValidationError('One or more ingredients were invalid. Please try again.')
+
+            display_unit = Unit.objects.get(pk=ingredient['unit_id'])
+            msg = 'You cannot convert between different types of unit: {ingredient} from {unit} to {display_unit}'
+            if display_unit.type != db_ingredient.unit.type:
+                self.add_error('ingredients', msg.format(**{
+                    'ingredient': db_ingredient.name,
+                    'unit': db_ingredient.unit.name,
+                    'display_unit': display_unit.name,
+                }))
+            
         return ingredients
     
     def save(self):

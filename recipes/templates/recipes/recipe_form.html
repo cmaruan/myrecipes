@@ -132,7 +132,7 @@
             </div>
             
             {% if form.ingredients.errors %}
-            <div class="flex justify-end items-center">
+            <div class="flex flex-col justify-end items-end">
             {% for error in form.ingredients.errors %}
                 <p class="text-red-500 text-xs italic"><strong>{{error}}</strong></p>
             {% endfor %} 

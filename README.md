@@ -10,7 +10,7 @@ There are two options to setup the app:
     curl -s https://raw.githubusercontent.com/cmaruan/myrecipes/main/install.sh | bash -s
     ``` 
 
-    This script will clone the repository into the current directory, create a virtual environment, install all dependencies and apply all migrations to the database. Currently, SQLite is being used. The script assumes it will be run on a Linux environment.
+    This script will clone the repository into the current directory, create a virtual environment, install all dependencies and apply all migrations to the database. Currently, SQLite is being used. The script assumes it will be run on a Linux environment with `pip` and `venv` python modules.
 
     The script also starts the development server provided by django.
 
@@ -62,6 +62,9 @@ There are two options to setup the app:
     python manage.py loaddata recipes/fixtures/units.json
     ```
     Please note that if you are on Windows, you will need to update the path!
+    To add other units, you must use the Django Admin.
+
+
     
     And start the development server
 
@@ -72,3 +75,12 @@ There are two options to setup the app:
 ## Security
 
 Please note that Django uses a variable called SECRET_KEY for cryptographic signing. MyRecipe does not provide this value by default. The app tries to find an evironment variable named 'DJANGO_SECRET' to use it as the secret key. If it fails, a new one will be generated. However, the app will not remember the previously generated secret key. So it's best if you create one and save it as an environment variable for your system.
+
+## Createing new units
+
+The default fixtures create the following units: gram, kilogram, liter, milliliter, centiliter. For extra units, you will need to use the djando admin site. Units are objects that have the follwing fields: 
+- `name`: The full name for the unit.
+- `short_name`: The abrreviation used for the unit
+- `type`: If the unit measures mass, use `m`. For units of volume, use `v`.
+- `multiplier`: This number tells MyRecipe how to calculate the proportions between a type of unit. For instance, if the Gram is the default unit, a kilogram must have a multiplier of 1000. If you choose the kilogram as default unit, the gram must have a multiplier of 0.001. The fixtures for units provided with the project use Gram and Liter as default units with multipliers 1.
+
