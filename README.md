@@ -62,3 +62,6 @@ There are two options to setup the app:
     python manage.py runserver
     ```
 
+## Security
+
+Because Django uses a SECRET_KEY for cryptographic signing. First, it tries to find an evironment variable named 'DJANGO_SECRET' and use it as the secret key. If it fails, a new one will be generated. However, the app will not remember the previously generated secret key. So it's best if you create one and save it as an environment variable for your system.

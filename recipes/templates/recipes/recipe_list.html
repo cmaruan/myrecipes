@@ -8,11 +8,12 @@
             </span>
             <span class="flex items-center justify-start">
                 <span class='text-black font-medium'>Cost: &nbsp;</span>
-                <span class='text-gray-600'> € {{recipe.cost}}</span>
+                <span class='text-gray-600'> € {{recipe.cost|floatformat:2}}</span>
             </span>
              <span class='grid grid-cols-2'>
                 <span class="flex items-center justify-center">
-                   <span class='text-black font-medium'>Serves 5 people</span>
+                <span class='text-black font-medium'>Ingredients: &nbsp;</span>
+                   <span class='text-gray-600'>{{recipe.ingredients.count}}</span>
                 </span>
                 <span class="flex items-center justify-end">
                     <a class="py-2 px-3 " href="{% url 'recipe-update' recipe.pk %}">
