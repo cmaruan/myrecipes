@@ -8,5 +8,6 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 python manage.py makemigrations recipes
-python manage.py migrate 
+python manage.py migrate
+python manage.py loaddata recipes/fixtures/units.json
 python manage.py runserver

@@ -55,6 +55,13 @@ There are two options to setup the app:
     python manage.py makemigrations recipes
     python manage.py migrate 
     ```
+
+    This step is optional, but you can load some fixtures about default units.
+
+    ```bash
+    python manage.py loaddata recipes/fixtures/units.json
+    ```
+    Please note that if you are on Windows, you will need to update the path!
     
     And start the development server
 
