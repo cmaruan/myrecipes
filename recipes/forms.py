@@ -96,11 +96,14 @@ class RecipeForm(forms.Form):
         name = data.get('name', None)
         ingredients = data.get('ingredients', None)
         directions = data.get('directions', None)
+        recipe = None
+
+        if self.pk:
+            recipe = Recipe.objects.get(pk=self.pk)
 
         if name:
             values.update(name=name)
         elif self.pk:
-            recipe = Recipe.objects.get(pk=self.pk)
             values.update(name=recipe.name)
 
         if directions:
@@ -112,12 +115,14 @@ class RecipeForm(forms.Form):
             values.update(ingredients=ingredients)
         elif self.pk:
             ingredients = recipe.ingredients.values(
-                'unit_id',
                 'id',
-                itemCost=F('amount')*F('recipeingredient__unit_cost')*F('recipeingredient__display_unit__multiplier'),
-                selectedAmount=F('amount'),
+                itemCost=F('recipeingredient__amount')*F('recipeingredient__unit_cost')*F('recipeingredient__display_unit__multiplier'),
+                unitId=F('recipeingredient__display_unit__pk'),
+                selectedAmount=F('recipeingredient__amount'),
                 selectedUnit=F('recipeingredient__display_unit__short_name'))
-            values.update(ingredients=json.dumps(list(ingredients)))
+            json_data = json.dumps(list(ingredients))
+            print(json_data)
+            values.update(ingredients=json_data)
 
         if name or ingredients:
             kwargs.update(data=values)
@@ -139,7 +144,7 @@ class RecipeForm(forms.Form):
             except:
                 raise forms.ValidationError('One or more ingredients were invalid. Please try again.')
 
-            display_unit = Unit.objects.get(pk=ingredient['unit_id'])
+            display_unit = Unit.objects.get(pk=ingredient['unitId'])
             msg = 'You cannot convert between different types of unit: {ingredient} from {unit} to {display_unit}'
             if display_unit.type != db_ingredient.unit.type:
                 self.add_error('ingredients', msg.format(**{
@@ -175,6 +180,6 @@ class RecipeForm(forms.Form):
                     amount=ingredient['selectedAmount'],
                     ingredient_id=ingredient['id'],
                     recipe=recipe,
-                    display_unit_id=ingredient['unit_id']
+                    display_unit_id=ingredient['unitId']
                 )
         

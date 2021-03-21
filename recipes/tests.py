@@ -7,26 +7,26 @@ from . import models
 
 class BaseTestCase(TestCase):
     def create_default_units(self):
-        models.Unit.objects.create(
+        self.kg = models.Unit.objects.create(
             # pk = 1
             name='Kilogram',
             short_name='kg',
             multiplier=1000,
             type='m',)
-        models.Unit.objects.create(
+        self.g = models.Unit.objects.create(
             # pk = 2
             name='Gram',
             short_name='g',
             multiplier=1,
             type='m',)
-        models.Unit.objects.create(
+        self.L = models.Unit.objects.create(
             # pk = 3
             name='Liter',
             short_name='L',
             multiplier=1,
             type='v',)
-        models.Unit.objects.create(
-            # pk = 2
+        self.ml = models.Unit.objects.create(
+            # pk = 4
             name='Milliliter',
             short_name='ml',
             multiplier=0.001,
@@ -34,18 +34,23 @@ class BaseTestCase(TestCase):
     
     def create_ingredients(self):
         # Create two ingredients
+        # 300g of Banana is $5
+        # 1Kg of Banana is $16.67
         models.Ingredient.objects.create(
             name='banana',
-            cost=10,
-            unit_id=1,
             article_number='B001',
-            amount=10)
+            cost=5,
+            amount=300,
+            unit=self.g)
+            
+        # 2L of Milk is $4
+        # 1L of Milk is $2
         models.Ingredient.objects.create(
             name='milk',
-            cost=5,
-            unit_id=3,
             article_number='B002',
-            amount=2)
+            cost=4,
+            amount=2,
+            unit=self.L)
 
 class IngredientsTestCase(BaseTestCase):
     def setUp(self):
@@ -94,9 +99,10 @@ class RecipeTestCase(BaseTestCase):
     def test_can_create_recipe_with_post(self):
         data = {
             'name': 'weird cookie',
+            'directions': 'Steps',
             'ingredients': json.dumps([
-                {'id': '1', 'selectedAmount': 2, 'unit_id': 1},
-                {'id': '2', 'selectedAmount': 3, 'unit_id': 3},
+                {'id': '1', 'selectedAmount': 2, 'unitId': 1},
+                {'id': '2', 'selectedAmount': 3, 'unitId': 3},
             ])
         }
         response = self.client.post(reverse('recipe-create'), data)
@@ -106,16 +112,17 @@ class RecipeTestCase(BaseTestCase):
     def test_update_recipe_with_post(self):
         data = {
             'name': 'weird cookie',
+            'directions': 'steps',
             'ingredients': json.dumps([
-                {'id': '1', 'selectedAmount': 2, 'unit_id': 1},
-                {'id': '2', 'selectedAmount': 3, 'unit_id': 3},
+                {'id': '1', 'selectedAmount': 2, 'unitId': 1},
+                {'id': '2', 'selectedAmount': 3, 'unitId': 3},
             ])
         }
         self.client.post(reverse('recipe-create'), data)
         data = {
             'name': 'weird cookie',
             'ingredients': json.dumps([
-                {'id': '2', 'selectedAmount': 3, 'unit_id': 3},
+                {'id': '2', 'selectedAmount': 3, 'unitId': 3},
             ])
         }
         self.client.post(reverse('recipe-update', kwargs={'pk': '1'}), data)
@@ -132,9 +139,55 @@ class RecipeTestCase(BaseTestCase):
         data = {
             'name': 'weird cookie',
             'ingredients': json.dumps([
-                {'id': '1', 'selectedAmount': 2, 'unit_id': 3},
+                {'id': '1', 'selectedAmount': 2, 'unitId': 3},
             ])
         }
         response = self.client.post(reverse('recipe-create'), data)
         content = response.content
         self.assertIn('You cannot convert between different types of unit', content.decode())
+
+    # pk1: 300g of Banana is $5
+    #      1Kg of Banana is $16.67
+    # PK2: 2L of Milk is $4
+    #      1L of Milk is $2
+    def test_recipe_cost_is_correct(self):
+        data = {
+            'name': 'Pancake',
+            'directions': 'steps',
+            'ingredients': json.dumps([
+                # 100g of Banana = 1.67
+                {'id': '1', 'selectedAmount': 100, 'unitId': 2},
+                # 100ml of Milk  = 0.20
+                {'id': '2', 'selectedAmount': 100, 'unitId': 4},
+            ])
+        }
+        response = self.client.post(reverse('recipe-create'), data)
+        recipe = models.Recipe.objects.first()
+        self.assertAlmostEqual(recipe.cost(), 1.87, 2)
+
+    def test_recipe_cost_updates_accordingly(self):
+        data = {
+            'name': 'Pancake',
+            'directions': 'steps',
+            'ingredients': json.dumps([
+                # 100g of Banana = 1.67
+                {'id': '1', 'selectedAmount': 100, 'unitId': self.g.pk},
+                # 100ml of Milk  = 0.20
+                {'id': '2', 'selectedAmount': 100, 'unitId': self.ml.pk},
+            ])
+        }
+        updated_data = {
+            'name': 'Pancake',
+            'directions': 'steps',
+            'ingredients': json.dumps([
+                # 1Kg of Banana = 16.67
+                {'id': '1', 'selectedAmount': 1, 'unitId': self.kg.pk},
+                # 400ml of Milk  = 0.80
+                {'id': '2', 'selectedAmount': 0.4, 'unitId': self.L.pk},
+            ])
+        }
+        self.client.post(reverse('recipe-create'), data)
+        self.client.post(reverse('recipe-update', kwargs={'pk': '1'}), updated_data)
+        recipe = models.Recipe.objects.first()
+
+        self.assertAlmostEqual(recipe.cost(), 17.47, 2)

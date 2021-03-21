@@ -214,6 +214,7 @@
             <button onclick="dropRow('${key}')"  class="flex justify-center items-center px-2 py-2 w-20 h-8 bg-red-500 text-sm text-red-50">Remove</button></div>
             `;
         document.getElementById("id_ingredients_table").appendChild(node);
+        console.log({ingredient, articleNumber, cost, amount, unit, key})
     }
 
     function dropRow(key) {
@@ -225,31 +226,26 @@
                 delete ingredientsSelected[key];
             }
         });
-        console.log(ingredientsSelected);
     }
 
     function sendData() {
         document.getElementById("_id_name").value = document.getElementById("id_name").value;
         document.getElementById("_id_ingredients").value = JSON.stringify(Object.values(ingredientsSelected));
-
-        console.log(document.getElementById("_id_name").value);
         console.log(document.getElementById("_id_ingredients").value);
         return true;
     }
 
     function updateTotalCost(amount) {
         let oldValue = parseFloat(document.getElementById("id_total_cost").innerHTML);
-        let newValue = Math.round(100 * (oldValue + amount)) / 100;
+        let newValue = oldValue + amount;
         document.getElementById("id_total_cost").innerHTML = newValue.toFixed(2);
     }
 
     document.getElementById("id_form_append_to_table").addEventListener("submit", function(event) {
         event.preventDefault();
-        console.log('form submit');
         const id = parseInt(document.getElementById("id_selected_ingredient").value);
         const selectedAmount = parseFloat(document.getElementById("id_amount").value);
         const selectedUnit = document.getElementById("id_unit").value;
-        console.log(ingredientsArray[id]);
         const {
             name,
             articleNumber,
@@ -259,19 +255,19 @@
         } = ingredientsArray[id];
 
         let unitCost = cost / (unitsMap[unit].multiplier * amount);
-        let itemCost = Math.round(unitCost * selectedAmount * unitsMap[selectedUnit].multiplier * 100) / 100;
+        let itemCost = unitCost * selectedAmount * unitsMap[selectedUnit].multiplier;
         let key = globalCounter++;
 
         appendRow(name, articleNumber, itemCost, selectedAmount, selectedUnit, key);
-        ingredientsSelected[key] = { id, itemCost, selectedUnit, selectedAmount, unit_id: unitsMap[selectedUnit].pk };
+        ingredientsSelected[key] = { id, itemCost, selectedUnit, selectedAmount, unitId: unitsMap[selectedUnit].pk };
         updateTotalCost(itemCost);
         
         console.log(ingredientsSelected);
     });
 
     document.addEventListener("DOMContentLoaded", function() {
+        console.log(JSON.stringify(ingredientsSelected));
         Object.entries(ingredientsSelected).forEach(([key, item]) => {
-            console.log(item)
             appendRow(
                 ingredientsArray[item.id].name,
                 ingredientsArray[item.id].articleNumber,
@@ -288,6 +284,3 @@
 
 </script>
 {% endblock script %}
-<div class="grid grid-cols-3 px-4 py-0.5 border-t h-14 {% if forloop.last %} border-b {% endif %} ">
-
-</div>
