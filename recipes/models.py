@@ -17,7 +17,7 @@ class Unit(models.Model):
 
 class IngredientManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().select_related('unit')
+        return super().get_queryset().select_related('unit').order_by('name')
 
 class Ingredient(models.Model):
     name = models.CharField(max_length=50)
