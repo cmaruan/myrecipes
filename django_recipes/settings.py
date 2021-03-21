@@ -26,13 +26,12 @@ SECRET_KEY = SECRET_KEY = os.getenv('DJANGO_SECRET', get_random_secret_key())
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = bool(os.getenv('DJANGO_DEBUG'))
 
 ALLOWED_HOSTS = ['*']
 
 INTERNAL_IPS = [
     '127.0.0.1',
-
 ]
 
 
