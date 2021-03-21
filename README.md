@@ -76,7 +76,7 @@ There are two options to setup the app:
 
 Please note that Django uses a variable called SECRET_KEY for cryptographic signing. MyRecipe does not provide this value by default. The app tries to find an evironment variable named 'DJANGO_SECRET' to use it as the secret key. If it fails, a new one will be generated. However, the app will not remember the previously generated secret key. So it's best if you create one and save it as an environment variable for your system.
 
-## Createing new units
+## Creating new units
 
 The default fixtures create the following units: gram, kilogram, liter, milliliter, centiliter. For extra units, you will need to use the djando admin site. Units are objects that have the follwing fields: 
 - `name`: The full name for the unit.
