@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.shortcuts import reverse
 
+import re
 import json
 
 from . import models
@@ -146,10 +147,6 @@ class RecipeTestCase(BaseTestCase):
         content = response.content
         self.assertIn('You cannot convert between different types of unit', content.decode())
 
-    # pk1: 300g of Banana is $5
-    #      1Kg of Banana is $16.67
-    # PK2: 2L of Milk is $4
-    #      1L of Milk is $2
     def test_recipe_cost_is_correct(self):
         data = {
             'name': 'Pancake',
@@ -186,8 +183,34 @@ class RecipeTestCase(BaseTestCase):
                 {'id': '2', 'selectedAmount': 0.4, 'unitId': self.L.pk},
             ])
         }
-        self.client.post(reverse('recipe-create'), data)
+        response = self.client.post(reverse('recipe-create'), data)
         self.client.post(reverse('recipe-update', kwargs={'pk': '1'}), updated_data)
         recipe = models.Recipe.objects.first()
 
         self.assertAlmostEqual(recipe.cost(), 17.47, 2)
+
+    def test_correct_ingredients_are_processed_by_backend(self):
+        data = {
+            'name': 'Pancake',
+            'directions': 'steps',
+            'ingredients': json.dumps([
+                # 100g of Banana = 1.67
+                {'id': '1', 'selectedAmount': 100, 'unitId': self.g.pk},
+                # 100ml of Milk  = 0.20
+                {'id': '2', 'selectedAmount': 100, 'unitId': self.ml.pk},
+            ])
+        }
+        self.client.post(reverse('recipe-create'), data)
+        response = self.client.get(reverse('recipe-update', kwargs={'pk': 1}))
+        content = response.content
+        decoded = content.decode()
+        match = re.search(r'ingredientsSelected = JSON.parse\(\'(.*)\'\);', decoded)
+        self.assertIsNotNone(match, "The object 'ingredientsSelected must be initialized'")
+
+        returned_data = json.loads(match.group(1))
+        self.assertEqual(returned_data[0]['id'], 1)
+        self.assertEqual(returned_data[0]['unitId'], self.g.pk)
+        self.assertAlmostEqual(returned_data[0]['selectedAmount'], 100)
+        self.assertEqual(returned_data[1]['id'], 2)
+        self.assertEqual(returned_data[1]['unitId'], self.ml.pk)
+        self.assertAlmostEqual(returned_data[1]['selectedAmount'], 100)
